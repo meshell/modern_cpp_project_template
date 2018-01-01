@@ -1,5 +1,6 @@
 set(CATCH_VERSION "2.0.1" CACHE STRING "Define Catch-2 version")
 
+
 function(catch_add_tests executable extra_args)
     if(NOT ARGN)
         message(FATAL_ERROR "Missing ARGN: Read the documentation for CATCH_ADD_TESTS")

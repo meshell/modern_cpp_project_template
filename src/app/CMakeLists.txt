@@ -50,6 +50,11 @@ target_include_directories(${PROJECT_NAME}
     ${Boost_INCLUDE_DIRS}
     )
 
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/../include
+    )
+
 target_link_libraries(${PROJECT_NAME}
     Boost::boost
     ${Boost_LIBRARIES}

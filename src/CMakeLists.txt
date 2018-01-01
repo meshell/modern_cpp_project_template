@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 # TODO fill in your project name and version
 project(modern_cpp_project_template VERSION 0.0.1 LANGUAGES CXX C)
 
-option(COVERAGE "Enable binary instrumentation to collect test coverage information in the DEBUG configuration" TRUE)
+option(COVERAGE_XML "Enable binary instrumentation to collect test coverage information in the DEBUG configuration (XML output)" TRUE)
+option(COVERAGE_HTML "Enable binary instrumentation to collect test coverage information in the DEBUG configuration (HTML output)" FALSE)
 
 # set default built type to Debug
 if(NOT CMAKE_BUILD_TYPE)
@@ -24,6 +25,10 @@ file(MAKE_DIRECTORY
     )
 
 include(clang)
+
+# Enable unit-testing.
+enable_testing(true)
+
 
 add_subdirectory(project_library)
 add_subdirectory(app)

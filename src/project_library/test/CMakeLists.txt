@@ -3,9 +3,6 @@
 # required minimum version of cmake
 cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
-# Enable unit-testing.
-enable_testing(true)
-
 set(TEST_RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_OUTPUT_DIRECTORY}/tests)
 
 file(MAKE_DIRECTORY
@@ -78,7 +75,7 @@ function(register_catchtest TEST_FILE)
         )
 
     # TODO uncomment if you would like each Test to show up in CTest as a test
-    # catch_add_tests(${TEST_NAME} "" ${TEST_FILE}.cpp)
+    catch_add_tests(${TEST_NAME} "" ${TEST_FILE}.cpp)
     set(CATCHTEST_SOURCES ${CATCHTEST_SOURCES} ${TEST_FILE}.cpp PARENT_SCOPE)
 endfunction()
 
@@ -105,7 +102,7 @@ set_target_properties(unittests
     RUNTIME_OUTPUT_DIRECTORY "${TEST_RUNTIME_OUTPUT_DIRECTORY}"
     )
 
-add_test(NAME unittest COMMAND unittests)
+add_test(unittest unittests)
 
 set_target_properties(unittests
     PROPERTIES
@@ -156,19 +153,33 @@ add_custom_target(run_unittests_junit
 add_dependencies(run_unittests_junit
     tests::unit
     )
-
-if(COVERAGE AND CMAKE_BUILD_TYPE MATCHES Debug)
-    include(CodeCoverage)
-    setup_target_for_coverage_cobertura(coverage_unittests
-        unittests
-        ${COVERAGE_REPORT_DIR}/catchtests
-        "-r junit;-o '${TESTS_REPORT_DIR}/catch-tests.xml'"
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    if(COVERAGE_XML)
+        include(CodeCoverage)
+        SETUP_TARGET_FOR_COVERAGE_COBERTURA(
+            NAME coverage_unittests_xml
+            EXECUTABLE unittests
+            OUTPUTNAME ${COVERAGE_REPORT_DIR}/unittests
+            DEPENDENCIES unittests
         )
 
-    if(NOT TARGET coverage)
-        add_custom_target(coverage)
-    endif(NOT TARGET coverage)
+        if(NOT TARGET coverage)
+            add_custom_target(coverage)
+        endif(NOT TARGET coverage)
 
-    add_dependencies(coverage coverage_unittests)
+        add_dependencies(coverage coverage_unittests_xml)
+    endif(COVERAGE_XML)
 
-endif(COVERAGE AND CMAKE_BUILD_TYPE MATCHES Debug)
+    if(COVERAGE_HTML)
+        SETUP_TARGET_FOR_COVERAGE(
+            NAME coverage_unittests_html
+            EXECUTABLE unittests
+            OUTPUTNAME ${COVERAGE_REPORT_DIR}/unittests
+            DEPENDENCIES unittests
+        )
+        if(NOT TARGET coverage)
+            add_custom_target(coverage)
+        endif(NOT TARGET coverage)
+        add_dependencies(coverage coverage_unittests_html)
+    endif(COVERAGE_HTML)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
