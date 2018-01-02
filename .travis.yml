@@ -21,21 +21,19 @@ notifications:
 
 before_install:
   - DOCKER_PROJECT_ROOT="/project"
+  - DOCKER_PROJECT_SOURCE_ROOT="${DOCKER_PROJECT_ROOT}/src"
   - docker pull ${DOCKER_IMAGE}
   - docker run -itd --name build -v ${TRAVIS_BUILD_DIR}:${DOCKER_PROJECT_ROOT} ${DOCKER_IMAGE}
-
-install:
-  - if [ "${COVERAGE}" == '1' ] ; then export PATH=$HOME/.local/bin:$PATH && pip install --user urllib3[secure] cpp-coveralls ; fi
 
 script:
   - |
     DOCKER_BUILD_DIR="/workspace/build"
-    docker exec build cmake -H${DOCKER_PROJECT_ROOT}/src -B${DOCKER_BUILD_DIR}
-    docker exec build cmake --build ${DOCKER_BUILD_DIR} --target all --config ${BUILD_TYPE}
-    if [ "${COVERAGE}" == '1' ] ; then docker exec build cmake --build ${DOCKER_BUILD_DIR} --target coverage --config ${BUILD_TYPE} ; fi
+    docker exec build bash -c "cmake -H${DOCKER_PROJECT_SOURCE_ROOT} -B${DOCKER_BUILD_DIR}; exit $?"
+    docker exec build bash -c "cmake --build ${DOCKER_BUILD_DIR} --target all --config ${BUILD_TYPE}; exit $?"
+    if [ "${COVERAGE}" == '1' ] ; then docker exec build bash -c "cmake --build ${DOCKER_BUILD_DIR} --target coverage --config ${BUILD_TYPE}; exit $?" ; fi
 
 after_success:
     # Uploading report to Coverals
-  - if [ "${COVERAGE}" = '1' ] ; then coveralls -E/usr/include/.* -E.*/test/.* -E.*/CMakeFiles/.* ; fi
+  - if [ "${COVERAGE}" = '1' ] ; then docker exec build bash -c "cd ${DOCKER_PROJECT_ROOT} && coveralls -E/usr/include/.* -E.*/test/.* -E.*/CMakeFiles/.* -r${DOCKER_PROJECT_ROOT}" ; fi
     # Uploading report to CodeCov
-  - if [ "${COVERAGE}" = '1' ] ; then bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports" ; fi
+  - if [ "${COVERAGE}" = '1' ] ; then docker exec build bash -c "cd ${DOCKER_PROJECT_ROOT} && bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'" ; fi
