@@ -97,13 +97,26 @@ set(COVERAGE_FLAGS "-g;-O0;--coverage;-fprofile-arcs;-ftest-coverage;")
 set(COVERAGE_LINKER_FLAGS "--coverage;")
 
 set(COVERAGE_EXCLUDES "")
-if(EXISTS ${PROJECT_SOURCE_DIR}/tests/coverage.ignore)
-    file(READ ${PROJECT_SOURCE_DIR}/tests/coverage.ignore CONTENT)
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/coverage.ignore)
+    message(STATUS "coverage.ignore file found.")
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/coverage.ignore CONTENT)
     string(REGEX REPLACE "\n" ";" CONTENT "${CONTENT}")
     foreach(LINE ${CONTENT})
         set(COVERAGE_EXCLUDES '${LINE}' ${COVERAGE_EXCLUDES})
     endforeach(LINE)
 endif()
+
+function(ENABLE_COVERAGE TARGET)
+    target_link_libraries(${TARGET}
+        PUBLIC
+        "$<$<CONFIG:DEBUG>:${COVERAGE_LINKER_FLAGS}>"
+        )
+
+    target_compile_options(${TARGET}
+        PUBLIC
+        $<$<CONFIG:DEBUG>:${COVERAGE_FLAGS}>
+        )
+endfunction()
 
 
 # Defines a target for running and collection code coverage information
@@ -131,15 +144,6 @@ function(SETUP_TARGET_FOR_COVERAGE)
         message(FATAL_ERROR "genhtml not found! Aborting...")
     endif() # NOT GENHTML_PATH
 
-    target_link_libraries(${Coverage_DEPENDENCIES}
-        PUBLIC
-        "$<IF:$<C_COMPILER_ID:GNU>,gcov,${COVERAGE_LINKER_FLAGS}>"
-        )
-
-    target_compile_options(${Coverage_DEPENDENCIES}
-        PUBLIC
-        $<$<CONFIG:DEBUG>:${COVERAGE_FLAGS}>
-        )
 
     # Setup target
     add_custom_target(${Coverage_NAME}
@@ -160,7 +164,7 @@ function(SETUP_TARGET_FOR_COVERAGE)
         COMMAND ${GENHTML_PATH} -o ${Coverage_OUTPUTNAME} ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
         COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.base ${Coverage_NAME}.info ${Coverage_NAME}.total ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
 
-        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
         COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
         )
@@ -205,16 +209,6 @@ function(SETUP_TARGET_FOR_COVERAGE_COBERTURA)
     endforeach()
 
     message(STATUS "Coverage Executable ${Coverage_EXECUTABLE}")
-
-    target_link_libraries(${Coverage_DEPENDENCIES}
-        PUBLIC
-        "$<IF:$<C_COMPILER_ID:GNU>,gcov,${COVERAGE_LINKER_FLAGS}>"
-        )
-
-    target_compile_options(${Coverage_DEPENDENCIES}
-        PUBLIC
-        $<$<CONFIG:DEBUG>:${COVERAGE_FLAGS}>
-        )
 
     add_custom_target(${Coverage_NAME}
 

@@ -153,9 +153,10 @@ add_custom_target(run_unittests_junit
 add_dependencies(run_unittests_junit
     tests::unit
     )
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
+    include(CodeCoverage)
     if(COVERAGE_XML)
-        include(CodeCoverage)
         SETUP_TARGET_FOR_COVERAGE_COBERTURA(
             NAME coverage_unittests_xml
             EXECUTABLE unittests

@@ -167,7 +167,14 @@ target_compile_features(project_lib
 
 export(TARGETS project_lib NAMESPACE internal:: FILE ${CMAKE_CURRENT_SOURCE_DIR}/../project-lib_export.cmake)
 
-add_subdirectory(test)
+add_subdirectory(tests)
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    include(CodeCoverage)
+    if(COVERAGE_XML OR COVERAGE_HTML)
+        ENABLE_COVERAGE(project_lib)
+    endif(COVERAGE_XML OR COVERAGE_HTML)
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
 
 #Install targets
 install(TARGETS project_lib
