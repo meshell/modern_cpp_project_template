@@ -7,7 +7,7 @@ sudo: required
 
 env:
   matrix:
-    - DOCKER_IMAGE=meshell/gcc64 BUILD_TYPE='Debug' COVERAGE=1
+    - DOCKER_IMAGE=meshell/gcc64 BUILD_TYPE='Debug' COVERAGE=1 GCOV_VER='gcov-7.2'
     - DOCKER_IMAGE=meshell/gcc72 BUILD_TYPE='Debug' COVERAGE=0
     - DOCKER_IMAGE=meshell/clang40 BUILD_TYPE='Debug' COVERAGE=0
     - DOCKER_IMAGE=meshell/clang50 BUILD_TYPE='Debug' COVERAGE=0
@@ -31,13 +31,15 @@ before_install:
 install:
   - if [ "${COVERAGE}" == '1' ] ; then export PATH=$HOME/.local/bin:$PATH && pip install --user urllib3[secure] cpp-coveralls ; fi
 
-script:
+before_script:
   - docker run -t -v ${DOCKER_VOLUME_MAP} ${DOCKER_IMAGE} cmake -H${DOCKER_PROJECT_SOURCE_ROOT} -B${DOCKER_BUILD_DIR}
+
+script:
   - docker run -t -v ${DOCKER_VOLUME_MAP} ${DOCKER_IMAGE} cmake --build ${DOCKER_BUILD_DIR} --target all --config ${BUILD_TYPE}
   - if [ "${COVERAGE}" == '1' ] ; then docker run -t -v ${DOCKER_VOLUME_MAP} ${DOCKER_IMAGE} cmake --build ${DOCKER_BUILD_DIR} --target coverage --config ${BUILD_TYPE} ; fi
 
 after_success:
     # Uploading report to Coverals
-  - if [ "${COVERAGE}" = '1' ] ; then coveralls -E/usr/include/.* -E.*/tests/.* -E.*/CMakeFiles/.* ; fi
+  - if [ "${COVERAGE}" = '1' ] ; then coveralls -E/usr/include/.* -E.*/tests/.* -E.*/CMakeFiles/.* --gcov ${GCOV_VER}; fi
     # Uploading report to CodeCov
   - if [ "${COVERAGE}" = '1' ] ; then bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports' ; fi

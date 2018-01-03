@@ -117,7 +117,7 @@ set(Boost_INCLUDE_DIRS ${boost_INCLUDE_DIR})
 # For header-only libraries
 if(NOT TARGET Boost::boost)
     add_library(Boost::boost INTERFACE IMPORTED)
-    if(Boost_INCLUDE_DIRS)
+    if(EXISTS Boost_INCLUDE_DIRS)
         set_target_properties(Boost::boost PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
     endif()
@@ -152,7 +152,7 @@ foreach(library ${Boost_Components})
     else()
         add_library(Boost::${library} UNKNOWN IMPORTED)
     endif()
-    if(Boost_INCLUDE_DIRS)
+    if(EXISTS ${Boost_INCLUDE_DIRS})
         set_target_properties(Boost::${library} PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")
     endif()

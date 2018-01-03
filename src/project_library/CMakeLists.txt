@@ -102,8 +102,8 @@ if(CLANG_TIDY_EXE)
 endif()
 
 
-# Define some common C++11 features
-# TODO uncomment the C++11/14 features you use
+# Define some common C++11/14/17 features
+# TODO uncomment the C++11/14/17 features you use
 target_compile_features(project_lib
     PUBLIC
     #    cxx_aggregate_default_initializers
