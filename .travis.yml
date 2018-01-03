@@ -7,8 +7,8 @@ sudo: required
 
 env:
   matrix:
-    - DOCKER_IMAGE=meshell/gcc64 BUILD_TYPE='Debug' COVERAGE=1 GCOV_VER='gcov-7.2'
-    - DOCKER_IMAGE=meshell/gcc72 BUILD_TYPE='Debug' COVERAGE=0
+    - DOCKER_IMAGE=meshell/gcc64 BUILD_TYPE='Debug' COVERAGE=0
+    - DOCKER_IMAGE=meshell/gcc72 BUILD_TYPE='Debug' COVERAGE=1
     - DOCKER_IMAGE=meshell/clang40 BUILD_TYPE='Debug' COVERAGE=0
     - DOCKER_IMAGE=meshell/clang50 BUILD_TYPE='Debug' COVERAGE=0
 
@@ -40,6 +40,6 @@ script:
 
 after_success:
     # Uploading report to Coverals
-  - if [ "${COVERAGE}" = '1' ] ; then coveralls -E/usr/include/.* -E.*/tests/.* -E.*/CMakeFiles/.* --gcov ${GCOV_VER}; fi
+  - if [ "${COVERAGE}" = '1' ] ; then docker run -t -v ${DOCKER_VOLUME_MAP} ${DOCKER_IMAGE} coveralls -E/usr/include/.* -E.*/tests/.* -E.*/CMakeFiles/.* ; fi
     # Uploading report to CodeCov
   - if [ "${COVERAGE}" = '1' ] ; then bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports' ; fi
