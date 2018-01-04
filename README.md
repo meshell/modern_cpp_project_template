@@ -1,7 +1,8 @@
  Status | |
  :--- | :---
 Travis  | [![Build Status Travis](https://travis-ci.org/meshell/modern_cpp_project_template.png)](https://travis-ci.org/meshell/modern_cpp_project_template)
-[![Coverage Status](https://coveralls.io/repos/github/meshell/modern_cpp_project_template/badge.svg?branch=master)](https://coveralls.io/github/meshell/modern_cpp_project_template?branch=master)
+[![Coverage Status Coveralls](https://coveralls.io/repos/github/meshell/modern_cpp_project_template/badge.svg?branch=master)](https://coveralls.io/github/meshell/modern_cpp_project_template?branch=master)
+[![Coverage Status codecov](https://codecov.io/gh/meshell/modern_cpp_project_template/branch/master/graph/badge.svg)](https://codecov.io/gh/meshell/modern_cpp_project_template)
 
 
 Modern C++ project template
