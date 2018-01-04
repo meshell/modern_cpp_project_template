@@ -8,9 +8,11 @@ sudo: required
 env:
   matrix:
     - DOCKER_IMAGE=meshell/gcc64 BUILD_TYPE='Debug' COVERAGE=0
-    - DOCKER_IMAGE=meshell/gcc72 BUILD_TYPE='Debug' COVERAGE=1
+    - DOCKER_IMAGE=meshell/gcc72 BUILD_TYPE='Debug' COVERAGE=0
+    - DOCKER_IMAGE=meshell/gcc72_boost BUILD_TYPE='Debug' COVERAGE=1
     - DOCKER_IMAGE=meshell/clang40 BUILD_TYPE='Debug' COVERAGE=0
     - DOCKER_IMAGE=meshell/clang50 BUILD_TYPE='Debug' COVERAGE=0
+    - DOCKER_IMAGE=meshell/clang50_boost BUILD_TYPE='Debug' COVERAGE=0
 
 notifications:
   email:
