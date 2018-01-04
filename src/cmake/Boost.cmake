@@ -44,6 +44,7 @@ if(CMAKE_COMPILER_IS_GNUCXX AND WIN32)
     set(BOOST_TOOLSET "mingw")
     set(BOOST_TOOLSET_BUILD "toolset=gcc")
     set(BOOST_CXX_FLAGS "-std=c++11")
+    set(BOOST_LINK_FLAGS "")
 elseif(CMAKE_COMPILER_IS_GNUCXX)
     set(BOOST_TOOLSET "gcc")
     set(BOOST_TOOLSET_BUILD "toolset=gcc")
@@ -52,7 +53,8 @@ elseif(CMAKE_COMPILER_IS_GNUCXX)
 elseif(CMAKE_COMPILER_IS_CLANGCXX)
     set(BOOST_TOOLSET "clang")
     set(BOOST_TOOLSET_BUILD "toolset=clang")
-    set(BOOST_CXX_FLAGS "cxxflags='-std=c++11 -Wno-c99-extensions'")
+    set(BOOST_CXX_FLAGS "cxxflags='-Wno-c99-extensions -stdlib=libc++ -std=c++11'")
+    set(BOOST_LINK_FLAGS "linkflags='-stdlib=libc++'")
 elseif(MSVC)
     set(BOOST_TOOLSET "msvc")
     set(BOOST_LAYOUT versioned)
@@ -72,15 +74,17 @@ ExternalProject_Add(boost_external
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND
     <SOURCE_DIR>/bootstrap${SCRIPT_SUFFIX} --with-toolset=${BOOST_TOOLSET} --prefix=<INSTALL_DIR>
+    COMMAND <SOURCE_DIR>/b2 clean
     BUILD_COMMAND
     <SOURCE_DIR>/b2${EXE_SUFFIX} install --prefix=<INSTALL_DIR>
     ${BOOST_LIBRARIES}
     -j8
     --build-type=complete
-    link=${BOOST_LINK}
-    threading=${BOOST_THREADING}
     --layout=${BOOST_LAYOUT}
+    link=${BOOST_LINK}  
+    threading=${BOOST_THREADING}
     ${BOOST_CXX_FLAGS}
+    ${BOOST_LINK_FLAGS}
     ${BOOST_TOOLSET_BUILD}
     ${BOOST_TOOLSET_ADDRESSMODEL}
     BUILD_IN_SOURCE 1
