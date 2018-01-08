@@ -22,8 +22,9 @@ parsers:
 
 ignore:
   - "/usr/include/.*"
-  - "**/tests/*"
-  - "**/CMakeFiles/*"      
+  - "**/tests/**/*"
+  - "**/CMakeFiles/**/*"
+  - "**/main.cpp"
 
 comment:
   layout: "reach, diff, flags, files, footer"
