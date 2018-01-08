@@ -1,7 +1,3 @@
-#ifdef _WINDOWS
-#include <ciso646>
-#endif
-
 #include "catch.hpp"
 #include "my_project/dummy.h"
 

@@ -93,7 +93,7 @@ set_target_properties(project_lib
     LINK_FLAGS "$<$<BOOL:UNIX>:Xlinker '--no-as-needed'>"
     )
 
-if(CLANG_TIDY_EXE)
+if(CLANG_TIDY_EXE AND NOT CMAKE_COMPILER_IS_GNUCXX)
     set_target_properties(
         project_lib
         PROPERTIES

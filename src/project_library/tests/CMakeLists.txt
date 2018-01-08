@@ -33,19 +33,24 @@ include(clang)
 # CATCH Main
 ############
 include(Catch)
+include(trompeloeil)
 
 add_library(catch_main OBJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 target_compile_features(catch_main
     PUBLIC
     cxx_noexcept
+    cxx_std_14
     )
 
 target_include_directories(catch_main
     SYSTEM
     PUBLIC
     ${CATCH_INCLUDE_DIR}
+    ${TROMPELOEIL_INCLUDE_DIR}
     )
+
 add_dependencies(catch_main catch)
+add_dependencies(catch_main trompeloeil)
 
 #########################################################################
 # Create test executables for every testclass (no coverage measurement) #
@@ -60,14 +65,17 @@ function(register_catchtest TEST_FILE)
         $<TARGET_OBJECTS:catch_main>
         )
 
+    target_compile_features(${TEST_NAME}
+        PUBLIC
+        cxx_noexcept
+        cxx_std_14
+        )
+
     target_include_directories(${TEST_NAME}
         SYSTEM
         PUBLIC
         ${CATCH_INCLUDE_DIR}
-        )
-    target_compile_options(${TEST_NAME}
-        PRIVATE
-        $<$<CONFIG:CMAKE_COMPILER_IS_CLANGCXX>:"-Wno-exit-time-destructors;">
+        ${TROMPELOEIL_INCLUDE_DIR}
         )
 
     target_link_libraries(${TEST_NAME}
@@ -85,6 +93,7 @@ endfunction()
 # - BDD Style Test
 register_catchtest(src/dummy_test_catch)
 register_catchtest(src/dummy_scenario_catch)
+register_catchtest(src/mock_test_catch)
 
 ######################################
 # Create a single test executable.   #
@@ -93,6 +102,12 @@ register_catchtest(src/dummy_scenario_catch)
 add_executable(unittests
     ${CATCHTEST_SOURCES}
     $<TARGET_OBJECTS:catch_main>
+    )
+
+target_compile_features(unittests
+    PUBLIC
+    cxx_noexcept
+    cxx_std_14
     )
 
 add_executable(tests::unit ALIAS unittests)
@@ -113,11 +128,7 @@ target_include_directories(unittests
     SYSTEM
     PUBLIC
     ${CATCH_INCLUDE_DIR}
-    )
-
-target_compile_options(unittests
-    PRIVATE
-    $<$<CONFIG:CMAKE_COMPILER_IS_CLANGCXX>:"-Wno-exit-time-destructors;">
+    ${TROMPELOEIL_INCLUDE_DIR}
     )
 
 target_link_libraries(unittests
@@ -125,7 +136,7 @@ target_link_libraries(unittests
     internal::project_lib
     )
 
-if(CLANG_TIDY_EXE)
+if(CLANG_TIDY_EXE AND NOT CMAKE_COMPILER_IS_GNUCXX)
     set_target_properties(
         unittests
         PROPERTIES
